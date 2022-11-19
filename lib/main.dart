@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'question.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -45,6 +47,30 @@ class _QuizzPageState extends State<QuizzPage> {
     color: Colors.red,
   );
 
+  int questionNumber = 0;
+  List<Question> questions = [
+    Question(
+      question: "Um quilo de aço pesa mais do que um quilo de algodão.",
+      answer: false,
+    ),
+    Question(
+      question: "Os morcegos são os únicos mamíferos capazes de voar.",
+      answer: true,
+    ),
+    Question(
+      question: "A aranha é um inseto.",
+      answer: false,
+    ),
+    Question(
+      question: "Feliz é o sinônimo de alegre.",
+      answer: true,
+    ),
+    Question(
+      question:
+          "Quando o simbolo ''vezes'' aparece em um broblema matemático você deve somar.",
+      answer: false,
+    ),
+  ];
   List<Icon> scoreKeeper = [];
 
   @override
@@ -53,14 +79,14 @@ class _QuizzPageState extends State<QuizzPage> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Expanded(
+        Expanded(
           flex: 5,
           child: Padding(
-            padding: EdgeInsets.all(10.0),
+            padding: const EdgeInsets.all(10.0),
             child: Center(
               child: Text(
-                'This is where the question will go.',
-                style: TextStyle(
+                questions[questionNumber].question,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 25.0,
                 ),
@@ -68,8 +94,8 @@ class _QuizzPageState extends State<QuizzPage> {
             ),
           ),
         ),
-        textButton('True', Colors.green, truePressed),
-        textButton('False', Colors.red, falsePressed),
+        textButton('Verdadeiro', Colors.green, truePressed),
+        textButton('Falso', Colors.red, falsePressed),
         Row(
           children: scoreKeeper,
         )
@@ -79,13 +105,27 @@ class _QuizzPageState extends State<QuizzPage> {
 
   void truePressed() {
     setState(() {
-      scoreKeeper.add(correctIcon);
+      if (questionNumber < questions.length - 1) {
+        if (questions[questionNumber].answer) {
+          scoreKeeper.add(correctIcon);
+        } else {
+          scoreKeeper.add(wrongIcon);
+        }
+        questionNumber++;
+      }
     });
   }
 
   void falsePressed() {
     setState(() {
-      scoreKeeper.add(wrongIcon);
+      if (questionNumber < questions.length - 1) {
+        if (questions[questionNumber].answer) {
+          scoreKeeper.add(wrongIcon);
+        } else {
+          scoreKeeper.add(correctIcon);
+        }
+        questionNumber++;
+      }
     });
   }
 
