@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:quizzler/quiz_brain.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
-import 'question.dart';
+QuizBrain quizBrain = QuizBrain();
 
 void main() {
   runApp(const MyApp());
@@ -47,31 +49,44 @@ class _QuizzPageState extends State<QuizzPage> {
     color: Colors.red,
   );
 
-  int questionNumber = 0;
-  List<Question> questions = [
-    Question(
-      question: "Um quilo de aço pesa mais do que um quilo de algodão.",
-      answer: false,
-    ),
-    Question(
-      question: "Os morcegos são os únicos mamíferos capazes de voar.",
-      answer: true,
-    ),
-    Question(
-      question: "A aranha é um inseto.",
-      answer: false,
-    ),
-    Question(
-      question: "Feliz é o sinônimo de alegre.",
-      answer: true,
-    ),
-    Question(
-      question:
-          "Quando o simbolo ''vezes'' aparece em um broblema matemático você deve somar.",
-      answer: false,
-    ),
-  ];
   List<Icon> scoreKeeper = [];
+
+  void checkAnswer(bool userPickedAnswer) {
+    setState(() {
+      if (quizBrain.getQuestionAnswer() == userPickedAnswer) {
+        scoreKeeper.add(correctIcon);
+      } else {
+        scoreKeeper.add(wrongIcon);
+      }
+      quizBrain.nextQuestion();
+      if (quizBrain.finished()) {
+        int pontos =
+            scoreKeeper.where((element) => element == correctIcon).length;
+        int total = scoreKeeper.length;
+        Alert(
+          context: context,
+          title: "Fim de Jogo",
+          desc: "O jogo acabou. Você fez $pontos de $total.",
+          buttons: [
+            DialogButton(
+              onPressed: () {
+                setState(() {
+                  scoreKeeper.clear();
+                  quizBrain.resetQuestionNumber();
+                  Navigator.pop(context);
+                });
+              },
+              width: 120,
+              child: const Text(
+                "COOL",
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+            )
+          ],
+        ).show();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +100,7 @@ class _QuizzPageState extends State<QuizzPage> {
             padding: const EdgeInsets.all(10.0),
             child: Center(
               child: Text(
-                questions[questionNumber].question,
+                quizBrain.getQuestionText(),
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 25.0,
@@ -104,29 +119,11 @@ class _QuizzPageState extends State<QuizzPage> {
   }
 
   void truePressed() {
-    setState(() {
-      if (questionNumber < questions.length - 1) {
-        if (questions[questionNumber].answer) {
-          scoreKeeper.add(correctIcon);
-        } else {
-          scoreKeeper.add(wrongIcon);
-        }
-        questionNumber++;
-      }
-    });
+    checkAnswer(true);
   }
 
   void falsePressed() {
-    setState(() {
-      if (questionNumber < questions.length - 1) {
-        if (questions[questionNumber].answer) {
-          scoreKeeper.add(wrongIcon);
-        } else {
-          scoreKeeper.add(correctIcon);
-        }
-        questionNumber++;
-      }
-    });
+    checkAnswer(false);
   }
 
   textButton(
